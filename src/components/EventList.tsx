@@ -40,7 +40,7 @@ const EventList: React.FC<EventListProps> = ({ events, handleCardClick }) => {
             <div key={idx} className="border-b-2 pb-3 pt-2 last:border-none relative">
               <div className='text-lg'><span className='text-gray-500'>Title:</span> {event.eventName}</div>
               <div className='text-sm'><span className='text-gray-500'>Description:</span> {event.description}</div>
-              <div className="absolute top-2 right-0 underline" onClick={() => handleCardClick ? handleCardClick(event) : null}>
+              <div className="absolute top-2 right-0 underline cursor-pointer" onClick={() => handleCardClick ? handleCardClick(event) : null}>
                 Edit
               </div>
             </div>
