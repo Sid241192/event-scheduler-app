@@ -11,11 +11,13 @@ const EventList: React.FC<EventListProps> = ({ events, handleCardClick }) => {
 
   const groupEventsByDate = useMemo(() => {
     const groupedEvents = events?.reduce((acc: Record<string, Event[]>, event: Event) => {
-      const dateKey = event?.date?.toDateString(); // Group by date string
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
+      if(event?.date) {
+        const dateKey = event?.date?.toDateString(); // Group by date string
+        if (!acc[dateKey]) {
+          acc[dateKey] = [];
+        }
+        acc[dateKey].push(event);
       }
-      acc[dateKey].push(event);
       return acc;
     }, {});
 

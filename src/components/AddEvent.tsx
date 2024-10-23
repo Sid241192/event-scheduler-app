@@ -16,7 +16,7 @@ const AddEvent: React.FC<AddEventProps> = ({ selectedDate, addEvent, eventData, 
     let obj = {...eventData};
 
     if(!obj.id) {
-      obj.date = selectedDate;
+      obj = {...obj, date: selectedDate};
     }
     addEvent(obj);
     setEventData({eventName: "", description: ""});

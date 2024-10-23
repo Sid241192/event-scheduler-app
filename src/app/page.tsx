@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect } from 'react';
 import CalendarView from '../components/CalendarView';
 import AddEvent from '../components/AddEvent';
 import LeftPanel from '../components/LeftPanel';
@@ -7,7 +7,7 @@ import Modal from '../components/Modal';
 
 export type Event = {
   id?: number;
-  date: Date;
+  date?: Date;
   eventName: string;
   description: string;
 }
@@ -18,17 +18,19 @@ const Home: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [eventData, setEventData] = useState({eventName:"", description:""});
-  const [isPending, startTranstition] = useTransition()
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (window.innerWidth < 768 && !event.target.closest('.left-panel') && !event.target.closest('.mobile-drawer-toggle')) {
+      const target = event?.target as Element; // Assert target as Element
+      if (window.innerWidth < 768 && 
+          !target.closest('.left-panel') && 
+          !target.closest('.mobile-drawer-toggle')) {
         setIsDrawerOpen(false);
       }
     };
-  
+
     document.addEventListener('click', handleClickOutside);
-  
+
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
@@ -44,8 +46,8 @@ const Home: React.FC = () => {
   const addEvent = (evt: Event) => {
     const {id, date, eventName, description} = evt;
     if(id) {
-      let eventsCopy = structuredClone(events);
-      let newEventsList = eventsCopy?.map((event) => {
+      const eventsCopy = structuredClone(events);
+      const newEventsList = eventsCopy?.map((event) => {
         if(event?.id === id) {
           return ({...event, eventName, description})
         } else {
@@ -61,8 +63,8 @@ const Home: React.FC = () => {
 
   const handleDelete =(id?: number) => {
     if(id) {
-      let eventsCopy = structuredClone(events);
-      let newEventsList = eventsCopy.filter(evt => evt?.id !== id);
+      const eventsCopy = structuredClone(events);
+      const newEventsList = eventsCopy.filter(evt => evt?.id !== id);
       setEvents(newEventsList);
     }
     setIsModalOpen(false)
@@ -86,9 +88,7 @@ const Home: React.FC = () => {
 
   const handleDateCardClick  = (evt: Event) => {
     setEventData(evt);
-    startTranstition(() => {
-      setIsModalOpen(true);
-    })
+    setIsModalOpen(true);
   }
 
   return (

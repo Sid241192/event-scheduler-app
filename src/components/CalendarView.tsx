@@ -54,7 +54,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, events, onDat
 
   const renderEvent = (date: Date) => {
     return events
-      .filter(event => event.date.toDateString() === date.toDateString())
+      .filter(event => event?.date?.toDateString() === date.toDateString())
       .map((event, index) => (
         <div
           key={index}
@@ -66,7 +66,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ selectedDate, events, onDat
       ));
   };
 
-  const handleEventClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, evt: {id: number, date: Date; eventName: string, description: string }) => {
+  const handleEventClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, evt: Event) => {
     e.stopPropagation(); // Prevents the event from bubbling up
     handleDateCardClick(evt)
   };
