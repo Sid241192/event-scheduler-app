@@ -1,101 +1,124 @@
-import Image from "next/image";
+"use client"
+import React, { useState, useEffect, useTransition } from 'react';
+import CalendarView from '../components/CalendarView';
+import AddEvent from '../components/AddEvent';
+import LeftPanel from '../components/LeftPanel';
+import Modal from '../components/Modal';
 
-export default function Home() {
+export type Event = {
+  id?: number;
+  date: Date;
+  eventName: string;
+  description: string;
+}
+
+const Home: React.FC = () => {
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [events, setEvents] = useState<Array<Event>>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [eventData, setEventData] = useState({eventName:"", description:""});
+  const [isPending, startTranstition] = useTransition()
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (window.innerWidth < 768 && !event.target.closest('.left-panel') && !event.target.closest('.mobile-drawer-toggle')) {
+        setIsDrawerOpen(false);
+      }
+    };
+  
+    document.addEventListener('click', handleClickOutside);
+  
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    if(!isModalOpen) {
+      setEventData({eventName:"", description:""});
+    }
+  },[isModalOpen])
+
+
+  const addEvent = (evt: Event) => {
+    const {id, date, eventName, description} = evt;
+    if(id) {
+      let eventsCopy = structuredClone(events);
+      let newEventsList = eventsCopy?.map((event) => {
+        if(event?.id === id) {
+          return ({...event, eventName, description})
+        } else {
+          return event;
+        }
+      })
+      setEvents(newEventsList)
+    } else {
+      setEvents([...events, {id: +new Date(), date, eventName, description }]);
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleDelete =(id?: number) => {
+    if(id) {
+      let eventsCopy = structuredClone(events);
+      let newEventsList = eventsCopy.filter(evt => evt?.id !== id);
+      setEvents(newEventsList);
+    }
+    setIsModalOpen(false)
+  }
+
+  const handleCreateTask = () => {
+    setSelectedDate(new Date());
+    setIsModalOpen(true);
+    if(window.innerWidth < 768){
+      setIsDrawerOpen(false);
+    }
+  };
+
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+    setIsModalOpen(true);
+  };
+  const toggleDrawer = () => {
+    setIsDrawerOpen(!isDrawerOpen);
+  };
+
+  const handleDateCardClick  = (evt: Event) => {
+    setEventData(evt);
+    startTranstition(() => {
+      setIsModalOpen(true);
+    })
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="mx-auto">
+      <div className='w-full h-[50px] flex items-center justify-start border border-[#DADCE0]'>
+      <button className="hidden sm:block mobile-drawer-toggle pb-2" onClick={toggleDrawer}>☰</button>
+      <div>NextJS Calender</div>
+      </div>
+      <div className="w-full h-[calc(100vh-50px)] grid grid-cols-12 mx-auto">
+          <div className={`hidden ${isDrawerOpen ? "col-span-3 sm:block" : ""}`}>
+      <LeftPanel onCreateTask={handleCreateTask} selectedDate={selectedDate} events={events}
+        toggleDrawer={toggleDrawer} handleCardClick={handleDateCardClick} />
+          </div>
+          <div className={`col-span-12 ${isDrawerOpen ? "sm:col-span-9" : ""}`}>
+      <div className="main-content flex-1 px-2">
+        <CalendarView
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          events={events}
+          handleDateCardClick={handleDateCardClick}
+          onDateClick={handleDateClick}
+          />
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <AddEvent selectedDate={selectedDate} addEvent={addEvent} eventData={eventData} setEventData={setEventData} handleDelete={handleDelete} />
+        </Modal>
+      </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          </div>
     </div>
   );
-}
+};
+
+export default Home;

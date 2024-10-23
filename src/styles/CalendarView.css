@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.mobile-drawer-toggle {
+  @apply text-3xl;
+  width: 50px; /* Set a fixed width */
+  height: 50px; /* Set the height equal to the width */
+  @media (max-width: 768px) {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+.left-panel {
+  @apply fixed z-10 top-0 left-0 h-full max-h-[calc(100vh-50px)] border-r-2 border-[#DADCE0] p-4 transform -translate-x-full transition-transform duration-300 md:relative md:transform-none overflow-auto;
+
+  &.open{
+    @apply translate-x-0;
+  }
+}
+
+@media (max-width: 768px) {
+  .left-panel {
+    @apply w-1/4 h-full static translate-x-0;
+  }
+}
+
+.create-task-btn {
+  @apply bg-blue-500 text-white p-2 rounded mb-4;
+}
+
+.mini-calendar-container {
+  @apply p-2 border-b-2 border-[#DADCE0];
+}
+
+.mini-calendar-navigation {
+  @apply flex justify-between items-center mb-2;
+}
+
+.mini-calendar-grid {
+  @apply grid grid-cols-7 gap-1;
+}
+
+.mini-calendar-header {
+  @apply p-2 font-bold text-center;
+}
+
+.mini-calendar-day {
+  @apply p-2 text-center rounded-full w-[40px] h-[40px];
+
+  &.selected {
+    @apply bg-[#D2E3FC] text-[#185ABC];
+  }
+
+  &.empty {
+    @apply bg-transparent;
+  }
+}
+
+.calendar-container {
+  @apply flex flex-col items-center py-4 w-full mx-auto;
+}
+
+.calendar-navigation {
+  @apply flex justify-between w-full max-w-lg mb-4;
+}
+
+.calendar-grid {
+  @apply grid grid-cols-7 gap-1 w-full;
+}
+
+.calendar-header {
+  @apply p-2 font-bold text-center;
+}
+
+.calendar-day {
+  @apply flex flex-col justify-center p-2 border border-[#DADCE0] text-center cursor-pointer;
+  aspect-ratio: 7 / 4; /* Ensures height equals width */
+
+  &.selected {
+    @apply bg-[#D2E3FC] text-[#185ABC];
+  }
+
+  &.empty {
+    @apply bg-transparent;
+  }
+
+  &.disabled {
+    @apply pointer-events-none bg-gray-100;
+  }
+
+  div {
+    flex: 1;
+  }
+
+  div:last-child {
+    flex: 3;
+    @apply overflow-auto;
+  }
+}
+
+.event-marker {
+  @apply bg-[#009688] mt-1 p-1 rounded text-xs text-white truncate;
+}
+@media (max-width: 768px) {
+  .event-marker {
+    @apply hidden;
+  }
+}
+
+
